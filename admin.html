@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KoolitusTest — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- LOGIN OVERLAY -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo">📋 KoolitusTest</div>
+    <div class="login-sub">Admin paneel</div>
+    <label for="loginPassword">Parool</label>
+    <input type="password" id="loginPassword" placeholder="Sisesta parool"
+      onkeydown="if(event.key==='Enter')doLogin()">
+    <div class="login-error" id="loginError"></div>
+    <button class="btn btn-accent" style="width:100%" onclick="doLogin()">Sisene →</button>
+  </div>
+</div>
+
+<header class="site-header">
+  <h1>&#x1F4CB; KoolitusTest <span style="font-size:.8rem;opacity:.6;font-family:'DM Sans',sans-serif;font-weight:300;">Admin</span></h1>
+  <div class="header-right">
+    <div class="lang-switcher" id="langSwitcher"></div>
+    <span class="badge" id="adminBadge">Admin</span>
+  </div>
+</header>
+
+<div class="app">
+  <p class="panel-title" id="panelTitle"></p>
+  <p class="panel-sub" id="panelSub"></p>
+
+  <!-- CARD 1: Test info -->
+  <div class="card">
+    <div class="card-title"><span class="num">1</span><span id="c1title"></span></div>
+    <label id="lName"></label><input type="text" id="testName">
+    <label id="lDesc"></label><textarea id="testDesc"></textarea>
+    <label id="lThresh"></label>
+    <div class="threshold-row">
+      <input type="number" id="threshold" min="1" max="100" value="70" oninput="updateThreshold()">
+      <span>%</span><span class="threshold-display" id="threshDisplay">70%</span>
+      <span style="font-size:.85rem;color:var(--ink-light)" id="threshLabel"></span>
+    </div>
+  </div>
+
+  <!-- CARD 2: Admin settings / EmailJS -->
+  <div class="card">
+    <div class="card-title"><span class="num">2</span><span id="c2title"></span></div>
+    <label id="lEmail"></label><input type="email" id="adminEmail" value="madis@laansalu.ee">
+    <div style="margin-top:10px">
+      <button class="btn btn-outline btn-sm" id="btnEjsToggle" onclick="toggleEjs()"></button>
+    </div>
+    <div id="ejsBox" style="display:none;margin-top:12px;padding:14px;background:var(--paper-dark);border-radius:10px;font-size:.85rem;">
+      <p style="color:var(--ink-light);margin-bottom:10px" id="ejsIntro"></p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <input type="text" id="ejsService"  placeholder="Service ID"  value="service_0a58c6w"  style="flex:1;min-width:130px;font-size:.82rem;padding:8px 10px">
+        <input type="text" id="ejsTemplate" placeholder="Template ID" value="template_sxa1o24" style="flex:1;min-width:130px;font-size:.82rem;padding:8px 10px">
+        <input type="text" id="ejsKey"      placeholder="Public Key"  value="5imaGKI-O4aZdrhU3"  style="flex:1;min-width:130px;font-size:.82rem;padding:8px 10px">
+      </div>
+      <p style="color:var(--ink-light);margin-top:10px;font-size:.79rem" id="ejsVars"></p>
+    </div>
+  </div>
+
+  <!-- CARD 3: Questions -->
+  <div class="card">
+    <div class="card-title"><span class="num">3</span><span id="c3title"></span></div>
+    <div class="questions-list" id="questionsList"></div>
+    <div class="actions-row">
+      <button class="btn btn-outline" id="btnAddQ" onclick="addQuestion()"></button>
+    </div>
+  </div>
+
+  <!-- Save / Demo / Clear -->
+  <div class="actions-row">
+    <button class="btn btn-success" id="btnSave" onclick="saveTest()"></button>
+    <button class="btn btn-outline btn-sm" id="btnDemo" onclick="loadDemo()"></button>
+    <button class="btn btn-outline btn-sm" id="btnClear" onclick="clearForm()"></button>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Test list header + import/export -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:10px">
+    <p style="font-family:'DM Serif Display',serif;font-size:1.3rem" id="listTitle"></p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-primary btn-sm" id="btnExportAll" onclick="exportTestFile()"></button>
+      <label class="btn btn-outline btn-sm" style="cursor:pointer">
+        <span id="btnImportLabel"></span>
+        <input type="file" accept=".html" style="display:none" onchange="importTestFile(this)">
+      </label>
+    </div>
+  </div>
+
+  <!-- Test list -->
+  <div class="test-list" id="testList"></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
