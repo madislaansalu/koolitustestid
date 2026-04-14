@@ -342,7 +342,7 @@ header h1 {
   <!-- Intro -->
   <div class="card">
     <p class="intro-title">Toiduhügieeni test</p>
-    <p class="intro-sub">10 küsimust · Igal küsimusel võib olla mitu õiget vastust · Läbimiseks vajalik ≥ 70%</p>
+    <p class="intro-sub">10 küsimust · 40 valikut kokku · Iga valik on eraldi punktiks · Läbimiseks vajalik ≥ 70%</p>
     <div class="name-row">
       <label for="empName">Töötaja nimi</label>
       <input type="text" id="empName" placeholder="Sisesta oma nimi" autocomplete="name">
@@ -549,19 +549,27 @@ function submitTest() {
     return;
   }
 
-  let correct = 0;
+  // Uus loogika: iga valik on eraldi punkt (40 kokku)
+  let totalOptions = 0;
+  let correctOptions = 0;
 
   questions.forEach((q, qi) => {
     const selected = q.options.map((_, oi) => document.getElementById("cb-"+qi+"-"+oi).checked);
-    const isCorrect = q.options.every((o, oi) => o.correct === selected[oi]);
-    if (isCorrect) correct++;
+    let qCorrect = 0;
 
-    // Style options
+    // Style options + count per-option score
     q.options.forEach((o, oi) => {
+      totalOptions++;
       const lbl = document.getElementById("opt-"+qi+"-"+oi);
       const box = document.getElementById("box-"+qi+"-"+oi);
       lbl.classList.remove("selected");
       lbl.style.pointerEvents = "none";
+
+      const optionRight = (o.correct === selected[oi]);
+      if (optionRight) {
+        correctOptions++;
+        qCorrect++;
+      }
 
       if (o.correct && selected[oi]) {
         lbl.className = "opt-label opt-correct";
@@ -578,21 +586,22 @@ function submitTest() {
       }
     });
 
-    // Question result label
+    // Question result label — näita mitu valikut õige
     const qr = document.getElementById("qr-"+qi);
     const card = document.getElementById("q"+qi);
-    if (isCorrect) {
+    const qTotal = q.options.length;
+    if (qCorrect === qTotal) {
       qr.className = "q-result ok";
-      qr.textContent = "✓ Õige";
+      qr.textContent = "✓ Kõik õige (" + qCorrect + "/" + qTotal + ")";
       card.classList.add("correct-card");
     } else {
       qr.className = "q-result err";
-      qr.textContent = "✗ Vale — kontrolli rohelisi vastuseid";
+      qr.textContent = "✗ " + qCorrect + "/" + qTotal + " valikut õige — kontrolli rohelisi vastuseid";
       card.classList.add("wrong-card");
     }
   });
 
-  const pct = Math.round(correct / questions.length * 100);
+  const pct = Math.round(correctOptions / totalOptions * 100);
   const pass = pct >= PASS_THRESHOLD;
 
   // Show score panel
@@ -601,9 +610,9 @@ function submitTest() {
   panel.className = pass ? "pass" : "fail";
   document.getElementById("scoreIcon").textContent = pass ? "🎉" : "📋";
   document.getElementById("scoreTitle").textContent = name;
-  document.getElementById("scoreNum").textContent = correct + " / " + questions.length;
+  document.getElementById("scoreNum").textContent = correctOptions + " / " + totalOptions;
   document.getElementById("scoreNum").className = "score-num " + (pass ? "pass-color" : "fail-color");
-  document.getElementById("scoreSub").textContent = pct + "% õigeid vastuseid · Läbimislävi: " + PASS_THRESHOLD + "%";
+  document.getElementById("scoreSub").textContent = pct + "% valikutest õige · Läbimislävi: " + PASS_THRESHOLD + "%";
   const verdict = document.getElementById("scoreVerdict");
   verdict.className = "score-verdict " + (pass ? "pass" : "fail");
   verdict.textContent = pass ? "✓ TEST LÄBITUD" : "✗ TEST LÄBIMATA";
