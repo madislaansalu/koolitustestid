@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Toiduhügieeni koolitus – test</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+    background: #fff;
+    color: #222;
+    line-height: 1.6;
+  }
+  h1 {
+    font-size: 1.5em;
+    border-bottom: 2px solid #1D9E75;
+    padding-bottom: 10px;
+    margin-bottom: 8px;
+  }
+  .intro {
+    color: #555;
+    font-size: 14px;
+    margin-bottom: 36px;
+  }
+  .question {
+    margin-bottom: 36px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px 22px;
+    page-break-inside: avoid;
+  }
+  .q-num {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .q-text {
+    font-size: 15px;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+  .hint {
+    font-size: 12px;
+    color: #888;
+    font-style: italic;
+    margin-bottom: 14px;
+  }
+  .option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 14px;
+    border: 1px solid transparent;
+  }
+  .option.correct {
+    background: #EAF3DE;
+    border-color: #63992280;
+    color: #27500A;
+  }
+  .option.wrong {
+    background: #f9f9f9;
+    border-color: #ddd;
+    color: #555;
+  }
+  .marker {
+    min-width: 20px;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: bold;
+    margin-top: 1px;
+  }
+  .marker.ok {
+    background: #3B6D11;
+    color: #fff;
+  }
+  .marker.no {
+    background: #ddd;
+    color: #999;
+  }
+  .legend {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 28px;
+    font-size: 13px;
+    color: #555;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .legend-box {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+  }
+  @media print {
+    body { padding: 20px; }
+    .question { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Toiduhügieeni koolitus – valikvastuste test</h1>
+<p class="intro">10 küsimust. Igal küsimusel võib olla mitu õiget vastust. Õiged vastused on roheliselt esile toodud.</p>
+
+<div class="legend">
+  <div class="legend-item">
+    <div class="legend-box ok">✓</div>
+    <span>Õige vastus</span>
+  </div>
+  <div class="legend-item">
+    <div class="legend-box no" style="background:#ddd;color:#999;">–</div>
+    <span>Vale vastus</span>
+  </div>
+</div>
+
+<!-- Küsimus 1 -->
+<div class="question">
+  <div class="q-num">Küsimus 1 / 10</div>
+  <div class="q-text">Mis on HACCP-süsteemi põhimõte?</div>
+  <div class="hint">Võib olla mitu õiget vastust.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Ohtude analüüs ja kriitiliste kontrollpunktide süsteem
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Ainult valmistoodangu kontrollimine laboratooriumis
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Probleemide ennetamine, mitte järelkontroll
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Ainult mikrobioloogiliste ohtude käsitlemine
+  </div>
+</div>
+
+<!-- Küsimus 2 -->
+<div class="question">
+  <div class="q-num">Küsimus 2 / 10</div>
+  <div class="q-text">Millised temperatuurid kuuluvad nn ohtlikku tsooni, kus mikroorganismid kõige kiiremini paljunevad?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    +6 °C kuni +63 °C
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    +20 °C kuni +37 °C (selle vahemiku sees, kus paljunemine on kiireim)
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    –18 °C kuni 0 °C
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Üle +63 °C
+  </div>
+</div>
+
+<!-- Küsimus 3 -->
+<div class="question">
+  <div class="q-num">Küsimus 3 / 10</div>
+  <div class="q-text">Milliseid toite loetakse kõrge riskiga (1. kategooria) toiduaineteks?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Jahutatud liha- ja kalatooted
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Keedised ja marmelaad
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Pastöriseerimata piim
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Lastetoit
+  </div>
+</div>
+
+<!-- Küsimus 4 -->
+<div class="question">
+  <div class="q-num">Küsimus 4 / 10</div>
+  <div class="q-text">Millised tunnused eristavad toidumürgistust (intoksikatsiooni) toiduinfektsioonist?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Haiguse põhjustab mikroobide toidus toodetud toksiin, mitte elusad bakterid
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Peiteperiood on tavaliselt lühem (mõnest tunnist)
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Haigustekitaja peab toidus paljunema inimese soolestikus
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Toidumürgistust võivad põhjustada ka hallitusseente mükotoksiinid
+  </div>
+</div>
+
+<!-- Küsimus 5 -->
+<div class="question">
+  <div class="q-num">Küsimus 5 / 10</div>
+  <div class="q-text">Millised väited Listeria monocytogenes'i kohta on õiged?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Bakter suudab paljuneda ka +1,5 °C juures
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Bakter hävib kuumutamisel üle 72 °C
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Listeria on kõige ohtlikum noortele täiskasvanutele ilma riskirühmata
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Bakter võib moodustada toidukäitlemisruumides biokilet
+  </div>
+</div>
+
+<!-- Küsimus 6 -->
+<div class="question">
+  <div class="q-num">Küsimus 6 / 10</div>
+  <div class="q-text">Millal on toidukäitleja jaoks kätepesu kohustuslik?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Pärast WC-s käimist
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Enne pausi algust (enne lahkumist toidukäitlemisalalt)
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Pärast toortoidu käitlemist
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Pärast köhimist või aevastamist
+  </div>
+</div>
+
+<!-- Küsimus 7 -->
+<div class="question">
+  <div class="q-num">Küsimus 7 / 10</div>
+  <div class="q-text">Millised väited ristsaastumise vältimise kohta on õiged?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Toortoit tuleb hoida külmkapis valmistoidust allpool
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Toor- ja valmistoidu jaoks võib kasutada sama lõikelauda, kui see on visuaalselt puhas
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Välisjalatseid ei tohi kanda toidukäitlemisalal
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Eri piirkondade jaoks tuleb kasutada erinevaid puhastustarvikuid
+  </div>
+</div>
+
+<!-- Küsimus 8 -->
+<div class="question">
+  <div class="q-num">Küsimus 8 / 10</div>
+  <div class="q-text">Millised väited toidujäätmete käitlemise kohta on õiged?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Biolagunevaid jäätmeid tuleb koguda eraldi ning konteinerid tühjendada iga päev
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Katkine klaas tuleb koguda eraldi ning selle kasutamine toidukäitlemisalal on keelatud
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Pakendijäätmeid võib segada toidujäätmetega samas konteineris
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Niiske papp tuleb viivitamata eemaldada toidukäitlemisalalt
+  </div>
+</div>
+
+<!-- Küsimus 9 -->
+<div class="question">
+  <div class="q-num">Küsimus 9 / 10</div>
+  <div class="q-text">Millised helmintoosid võivad levida kala kaudu?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Laiuss (kuni 20 m pikk paeluss, levib hauge, siia, lutsu, lõhe, forelli ja koha kaudu)
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Keeritsuss (Trichinella) — levib metsloomade liha, mitte kala kaudu
+  </div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Nudipaeluss — levib veiseliha kaudu
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Laiuss on Eestis levinuim kalade kaudu leviv paeluss (keskmiselt 84 juhtu aastas)
+  </div>
+</div>
+
+<!-- Küsimus 10 -->
+<div class="question">
+  <div class="q-num">Küsimus 10 / 10</div>
+  <div class="q-text">Millised väited puhastamise ja desinfitseerimise kohta on õiged?</div>
+  <div class="hint">Vali kõik õiged vastused.</div>
+  <div class="option wrong">
+    <div class="marker no">–</div>
+    Desinfitseerimine on tõhus ka ilma eelneva puhastamiseta
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Mikroobid ei paljune kuival pinnal — pindade kuivatamine pärast pesemist on oluline
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Klooriaineid ei tohi segada happeliste pesuvahendite puhastusainetega
+  </div>
+  <div class="option correct">
+    <div class="marker ok">✓</div>
+    Valgurikaste pindade pesemiseks ei tohi kasutada üle +55 °C vett (valk hüübib ja jääb pinnale kinni)
+  </div>
+</div>
+
+</body>
+</html>
