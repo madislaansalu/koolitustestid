@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KoolitusTest</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1a1a2e;--ink-light:#3a3a5c;--paper:#f5f0e8;--paper-dark:#ede7d9;--accent:#c84b31;--accent-light:#e8705a;--success:#2d6a4f;--success-bg:#d8f3dc;--fail:#c84b31;--fail-bg:#fde8e4;--border:#c8bfaa;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:"DM Sans",sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;background-image:radial-gradient(circle at 20% 80%,rgba(200,75,49,.06) 0%,transparent 50%),radial-gradient(circle at 80% 20%,rgba(232,160,32,.06) 0%,transparent 50%);}
+.site-header{background:var(--ink);color:var(--paper);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.3);}
+.site-header h1{font-family:"DM Serif Display",serif;font-size:1.3rem;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.badge{font-size:.72rem;font-weight:600;background:var(--accent);color:#fff;padding:3px 10px;border-radius:20px;letter-spacing:.05em;text-transform:uppercase;}
+.lang-switcher{display:flex;gap:4px;}
+.lang-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:var(--paper);border-radius:6px;padding:4px 9px;font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:"DM Sans",sans-serif;}
+.lang-btn:hover{background:rgba(255,255,255,.22);}
+.lang-btn.active{background:#fff;color:var(--ink);}
+.app{max-width:880px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.view{display:none;}
+.view.active{display:block;animation:fadeUp .4s ease both;}
+/* TEST PICKER */
+.picker-title{font-family:"DM Serif Display",serif;font-size:2rem;margin-bottom:.3rem;}
+.picker-sub{color:var(--ink-light);font-size:.9rem;margin-bottom:2rem;font-weight:300;}
+.test-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;}
+.test-card{background:#fff;border:1.5px solid var(--border);border-radius:14px;padding:1.4rem;cursor:pointer;transition:all .25s;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.test-card:hover{border-color:var(--ink);transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,.10);}
+.tc-icon{font-size:2rem;margin-bottom:.8rem;}
+.tc-name{font-family:"DM Serif Display",serif;font-size:1.1rem;margin-bottom:.4rem;line-height:1.2;}
+.tc-desc{font-size:.82rem;color:var(--ink-light);font-weight:300;margin-bottom:.8rem;line-height:1.4;}
+.tc-meta{display:flex;gap:.6rem;flex-wrap:wrap;}
+.tc-pill{font-size:.72rem;font-weight:600;padding:3px 9px;border-radius:20px;background:var(--paper-dark);color:var(--ink-light);}
+.empty-state{text-align:center;padding:4rem 2rem;color:var(--ink-light);}
+.empty-state .es-icon{font-size:3rem;margin-bottom:1rem;}
+.empty-state p{font-size:.95rem;font-weight:300;}
+/* NAME SCREEN */
+.name-screen-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:65vh;text-align:center;padding:2rem 1rem;}
+.ns-icon{font-size:3rem;margin-bottom:1rem;}
+.ns-title{font-family:"DM Serif Display",serif;font-size:2rem;margin-bottom:.4rem;}
+.ns-desc{font-size:.92rem;color:var(--ink-light);font-weight:300;margin-bottom:.4rem;max-width:420px;}
+.ns-meta{font-size:.82rem;color:var(--ink-light);margin-bottom:2rem;}
+.name-input-wrap{width:100%;max-width:420px;}
+.name-input-wrap input{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:14px 18px;font-family:"DM Sans",sans-serif;font-size:1.1rem;color:var(--ink);background:var(--paper);text-align:center;outline:none;transition:border-color .2s,box-shadow .2s;}
+.name-input-wrap input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(26,26,46,.08);background:#fff;}
+/* TEST */
+.test-header{margin-bottom:2rem;}
+.test-title{font-family:"DM Serif Display",serif;font-size:2rem;line-height:1.15;margin-bottom:.5rem;}
+.test-meta{display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.85rem;color:var(--ink-light);margin-bottom:1.2rem;font-weight:300;}
+.test-meta strong{font-weight:600;color:var(--ink);}
+.progress-bar-wrap{height:6px;background:var(--paper-dark);border-radius:99px;overflow:hidden;margin-bottom:1.5rem;}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--ink),var(--accent));border-radius:99px;transition:width .4s ease;}
+.nav-dots{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:2rem;}
+.nav-dot{width:10px;height:10px;border-radius:50%;background:var(--paper-dark);border:1.5px solid var(--border);cursor:pointer;transition:all .2s;}
+.nav-dot.answered{background:var(--ink);border-color:var(--ink);}
+.nav-dot.current{border-color:var(--accent);box-shadow:0 0 0 3px rgba(200,75,49,.2);}
+.question-card{background:#fff;border:1px solid var(--border);border-radius:14px;padding:2rem;margin-bottom:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.05);}
+.q-label{font-size:.75rem;font-weight:600;color:var(--ink-light);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.8rem;}
+.q-text{font-size:1.1rem;font-weight:500;line-height:1.5;margin-bottom:1.2rem;}
+.answer-options{display:flex;flex-direction:column;gap:10px;}
+.answer-btn{display:flex;align-items:center;gap:12px;padding:13px 16px;border:2px solid var(--border);border-radius:10px;background:var(--paper);cursor:pointer;font-family:"DM Sans",sans-serif;font-size:.95rem;color:var(--ink);text-align:left;transition:all .2s;width:100%;}
+.answer-btn:hover{border-color:var(--ink-light);background:#fff;transform:translateX(3px);}
+.answer-btn.selected{border-color:var(--ink);background:#fff;box-shadow:0 0 0 3px rgba(26,26,46,.1);}
+.answer-btn.correct-answer{border-color:var(--success);background:var(--success-bg);color:var(--success);}
+.answer-btn.wrong-answer{border-color:var(--fail);background:var(--fail-bg);color:var(--fail);}
+.answer-btn.missed-answer{border-color:var(--success);background:rgba(45,106,79,.08);color:var(--success);border-style:dashed;}
+.option-circle{width:28px;height:28px;border-radius:50%;background:var(--paper-dark);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;transition:all .2s;}
+.selected .option-circle{background:var(--ink);color:#fff;}
+.correct-answer .option-circle{background:var(--success);color:#fff;}
+.wrong-answer .option-circle{background:var(--fail);color:#fff;}
+.missed-answer .option-circle{background:var(--success);color:#fff;}
+.result-icon{font-size:1.1rem;margin-left:auto;}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 22px;border-radius:8px;font-family:"DM Sans",sans-serif;font-weight:600;font-size:.9rem;cursor:pointer;border:none;transition:all .2s;}
+.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+.btn-primary{background:var(--ink);color:#fff;}
+.btn-primary:hover:not(:disabled){background:var(--ink-light);transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.18);}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-accent:hover:not(:disabled){background:var(--accent-light);transform:translateY(-1px);box-shadow:0 4px 14px rgba(200,75,49,.3);}
+.btn-outline{background:transparent;border:1.5px solid var(--border);color:var(--ink);}
+.btn-outline:hover:not(:disabled){border-color:var(--ink);background:var(--paper-dark);}
+.btn-sm{padding:8px 16px;font-size:.82rem;}
+.actions-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:1rem;}
+/* RESULTS */
+.result-hero{text-align:center;padding:3rem 2rem;background:#fff;border:1px solid var(--border);border-radius:16px;margin-bottom:2rem;box-shadow:0 4px 20px rgba(0,0,0,.06);}
+.result-emoji{font-size:4rem;margin-bottom:1rem;display:block;}
+.result-heading{font-family:"DM Serif Display",serif;font-size:2.2rem;margin-bottom:.5rem;}
+.result-heading.pass{color:var(--success);}
+.result-heading.fail{color:var(--fail);}
+.result-sub{color:var(--ink-light);font-size:.95rem;font-weight:300;margin-bottom:2rem;}
+.score-ring-wrap{display:flex;justify-content:center;margin-bottom:2rem;}
+.score-ring{position:relative;width:140px;height:140px;}
+.score-ring svg{transform:rotate(-90deg);}
+.score-ring circle{fill:none;stroke-width:12;}
+.score-ring .track{stroke:var(--paper-dark);}
+.score-ring .fill{stroke-dasharray:339.3;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);}
+.score-ring.pass .fill{stroke:var(--success);}
+.score-ring.fail .fill{stroke:var(--fail);}
+.score-ring-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.score-pct{font-family:"DM Serif Display",serif;font-size:2rem;line-height:1;}
+.score-lbl{font-size:.7rem;font-weight:600;color:var(--ink-light);text-transform:uppercase;letter-spacing:.06em;}
+.stats-row{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;}
+.stat-pill{display:flex;flex-direction:column;align-items:center;}
+.stat-pill .val{font-family:"DM Serif Display",serif;font-size:1.5rem;}
+.stat-pill .val.ok{color:var(--success);}
+.stat-pill .val.bad{color:var(--fail);}
+.stat-pill .lbl{font-size:.75rem;color:var(--ink-light);font-weight:300;}
+.threshold-note{font-size:.82rem;color:var(--ink-light);margin-top:1.5rem;padding:10px 16px;background:var(--paper-dark);border-radius:8px;display:inline-block;}
+.review-title{font-family:"DM Serif Display",serif;font-size:1.5rem;margin-bottom:1.2rem;}
+.review-card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1rem;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.review-card.correct-q{border-left:4px solid var(--success);}
+.review-card.wrong-q{border-left:4px solid var(--fail);}
+.review-q-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:1rem;}
+.review-q-text{font-weight:500;font-size:1rem;flex:1;}
+.review-badge{font-size:.72rem;font-weight:600;padding:3px 10px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.badge-ok{background:var(--success-bg);color:var(--success);}
+.badge-fail{background:var(--fail-bg);color:var(--fail);}
+/* PRINT */
+@media print{
+  @page{size:A4;margin:18mm 16mm;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body{background:#fff!important;background-image:none!important;}
+  .site-header,.actions-row,.no-print,.nav-dots,.progress-bar-wrap{display:none!important;}
+  .app{max-width:100%;padding:0;}
+  .view{display:none!important;}
+  #viewResults{display:block!important;}
+  .pdf-header{display:flex!important;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #1a1a2e;padding-bottom:10pt;margin-bottom:14pt;}
+  .pdf-header-left h2{font-family:"DM Serif Display",serif;font-size:16pt;color:#1a1a2e;margin-bottom:2pt;}
+  .pdf-header-left p,.pdf-header-right{font-size:9pt;color:#666;}
+  .pdf-header-right .logo{font-family:"DM Serif Display",serif;font-size:13pt;color:#1a1a2e;}
+  .pdf-worker-line{display:block!important;font-size:9.5pt;margin-bottom:10pt;color:#444;}
+  .result-hero{padding:14pt!important;margin-bottom:14pt!important;box-shadow:none!important;page-break-inside:avoid;}
+  .result-heading{font-size:18pt!important;}
+  .result-sub{font-size:10pt!important;}
+  .score-ring{width:110px!important;height:110px!important;}
+  .score-ring svg{width:110px!important;height:110px!important;}
+  .score-pct{font-size:1.6rem!important;}
+  .stats-row{gap:1.5rem!important;}
+  .review-card{padding:10pt!important;margin-bottom:8pt!important;box-shadow:none!important;page-break-inside:avoid;}
+  .answer-btn{padding:6pt 10pt!important;margin-bottom:4pt!important;font-size:9.5pt!important;pointer-events:none;}
+  .option-circle{width:20px!important;height:20px!important;font-size:8pt!important;}
+  .correct-answer{background:#d8f3dc!important;border-color:#2d6a4f!important;color:#2d6a4f!important;}
+  .wrong-answer{background:#fde8e4!important;border-color:#c84b31!important;color:#c84b31!important;}
+  .missed-answer{background:rgba(45,106,79,.08)!important;border-color:#2d6a4f!important;color:#2d6a4f!important;}
+  .correct-answer .option-circle{background:#2d6a4f!important;color:#fff!important;}
+  .wrong-answer .option-circle{background:#c84b31!important;color:#fff!important;}
+  .missed-answer .option-circle{background:#2d6a4f!important;color:#fff!important;}
+  .result-heading.pass{color:#2d6a4f!important;}
+  .result-heading.fail{color:#c84b31!important;}
+  .score-ring.pass .fill{stroke:#2d6a4f!important;}
+  .score-ring.fail .fill{stroke:#c84b31!important;}
+  .stat-pill .val.ok{color:#2d6a4f!important;}
+  .stat-pill .val.bad{color:#c84b31!important;}
+  .pdf-footer{display:block!important;position:fixed;bottom:8mm;left:0;right:0;text-align:center;font-size:8pt;color:#999;border-top:1px solid #eee;padding-top:6pt;}
+}
+@media(max-width:600px){
+  .app{padding:1rem 1rem 3rem;}
+  .test-title,.ns-title{font-size:1.5rem;}
+  .result-heading{font-size:1.6rem;}
+  .question-card{padding:1.2rem;}
+  .test-grid{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <h1>📋 KoolitusTest</h1>
+  <div class="header-right">
+    <div class="lang-switcher" id="langSwitcher"></div>
+    <span class="badge" id="headerBadge"></span>
+  </div>
+</header>
+<div class="app">
+
+  <!-- VIEW: Test picker -->
+  <div class="view active" id="viewPicker">
+    <p class="picker-title" id="pickerTitle"></p>
+    <p class="picker-sub" id="pickerSub"></p>
+    <div class="test-grid" id="testGrid"></div>
+  </div>
+
+  <!-- VIEW: Name entry -->
+  <div class="view" id="viewName">
+    <div class="name-screen-wrap">
+      <div class="ns-icon">👤</div>
+      <div class="ns-title" id="nsTestName"></div>
+      <p class="ns-desc" id="nsTestDesc"></p>
+      <p class="ns-meta" id="nsTestMeta"></p>
+      <div class="name-input-wrap">
+        <input type="text" id="workerName" placeholder=""
+          autocomplete="name"
+          oninput="document.getElementById('btnStart').disabled=!this.value.trim()"
+          onkeydown="if(event.key==='Enter'&&this.value.trim())startTest()">
+        <div class="actions-row" style="justify-content:center;margin-top:1.2rem">
+          <button class="btn btn-outline" onclick="showView('viewPicker')" id="btnBackPicker"></button>
+          <button class="btn btn-accent" id="btnStart" onclick="startTest()" disabled></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW: Questions -->
+  <div class="view" id="viewQuestions">
+    <div class="test-header">
+      <div class="test-title" id="ttName"></div>
+      <div class="test-meta">
+        <span><strong id="ttQCount"></strong> <span id="ttQLbl"></span></span>
+        <span><span id="ttPassLbl"></span>: <strong id="ttThresh"></strong>%</span>
+        <span>👤 <strong id="ttWorker"></strong></span>
+      </div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+      <div class="nav-dots" id="navDots"></div>
+    </div>
+    <div id="questionCards"></div>
+    <div class="actions-row">
+      <button class="btn btn-outline" id="btnPrev" onclick="navQ(-1)" style="display:none"></button>
+      <button class="btn btn-primary" id="btnNext" onclick="navQ(1)"></button>
+      <button class="btn btn-accent" id="btnSubmit" onclick="submitTest()" style="display:none"></button>
+    </div>
+  </div>
+
+  <!-- VIEW: Results -->
+  <div class="view" id="viewResults">
+    <!-- PDF only -->
+    <div class="pdf-header" style="display:none">
+      <div class="pdf-header-left"><h2 id="pdfTestName"></h2><p id="pdfDateTime"></p></div>
+      <div class="pdf-header-right"><div class="logo">📋 KoolitusTest</div><p id="pdfReportLbl"></p></div>
+    </div>
+    <p class="pdf-worker-line" style="display:none"><span id="pdfWorkerLbl"></span>: <strong id="pdfWorkerName"></strong></p>
+    <!-- Actions -->
+    <div class="no-print" style="display:flex;justify-content:flex-end;gap:10px;margin-bottom:1.5rem;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="printPDF()" id="btnPrint"></button>
+      <button class="btn btn-accent" id="btnEmail" onclick="sendEmail()"></button>
+    </div>
+    <div id="emailStatus" style="display:none;padding:12px 16px;border-radius:8px;font-size:.88rem;margin-bottom:1rem;"></div>
+    <!-- Hero -->
+    <div class="result-hero">
+      <span class="result-emoji" id="resEmoji"></span>
+      <div class="result-heading" id="resHeading"></div>
+      <div class="result-sub" id="resSub"></div>
+      <div class="score-ring-wrap">
+        <div class="score-ring" id="scoreRing">
+          <svg width="140" height="140" viewBox="0 0 120 120">
+            <circle class="track" cx="60" cy="60" r="54"/>
+            <circle class="fill" id="ringFill" cx="60" cy="60" r="54" stroke-dashoffset="339.3"/>
+          </svg>
+          <div class="score-ring-text"><span class="score-pct" id="scorePct"></span><span class="score-lbl" id="scoreLbl"></span></div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-pill"><span class="val ok" id="statOk"></span><span class="lbl" id="statOkLbl"></span></div>
+        <div class="stat-pill"><span class="val bad" id="statWrong"></span><span class="lbl" id="statWrongLbl"></span></div>
+        <div class="stat-pill"><span class="val" id="statTotal"></span><span class="lbl" id="statTotalLbl"></span></div>
+      </div>
+      <div><span class="threshold-note" id="threshNote"></span></div>
+    </div>
+    <div class="review-title" id="reviewTitle"></div>
+    <div id="reviewCards"></div>
+    <div class="actions-row no-print" style="margin-top:2rem">
+      <button class="btn btn-primary" onclick="retake()" id="btnRetake"></button>
+      <button class="btn btn-outline" onclick="showView('viewPicker')" id="btnAllTests"></button>
+    </div>
+  </div>
+
+  <div class="pdf-footer" style="display:none">KoolitusTest &nbsp;|&nbsp; <span id="pdfFooterDate"></span></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+// EMBEDDED TEST DATA — injected by admin.html export
+// DO NOT EDIT MANUALLY
+/*%%TESTS_DATA%%*/
+const EMBEDDED_TESTS=[{"id":1000000001,"name":"Lao ja transpordi toiduhügieen","desc":"Kontrolli oma teadmisi lao ja transpordi toiduhügieeni nõuete kohta.","threshold":70,"questions":[{"text":"Mis temperatuuril tuleb jahutatud liha- ja kalatooted laos hoida?","options":[{"text":"+2…+6 °C","correct":true},{"text":"+6…+10 °C","correct":false},{"text":"0…+2 °C","correct":false}]},{"text":"Mis temperatuuril tuleb külmutatud tooteid hoida?","options":[{"text":"≤ −18 °C","correct":true},{"text":"≤ −10 °C","correct":false},{"text":"≤ −5 °C","correct":false}]},{"text":"Milline temperatuurivahemik on bakteritele kõige soodsam kasvuks?","options":[{"text":"+6…+63 °C","correct":true},{"text":"0…+6 °C","correct":false},{"text":"+63…+100 °C","correct":false}]},{"text":"Mida tähendab FIFO põhimõte laos?","options":[{"text":"Esimesena sisse, esimesena välja","correct":true},{"text":"Viimane sisse, esimene välja","correct":false},{"text":"Kõige odavam toode läheb esimesena välja","correct":false}]},{"text":"Millisele riiulile tuleb toortoit külmlaos paigutada?","options":[{"text":"Alumistele riiulitele","correct":true},{"text":"Ülemistele riiulitele","correct":false},{"text":"Keskmistele riiulitele","correct":false}]},{"text":"Mis temperatuuril tuleb kodulinnuliha hoida?","options":[{"text":"≤ +4 °C","correct":true},{"text":"≤ +6 °C","correct":false},{"text":"≤ +8 °C","correct":false}]},{"text":"Mida tähendab HACCP?","options":[{"text":"Ohtude analüüs ja kriitiliste kontrollpunktide süsteem","correct":true},{"text":"Hügieeni ja puhastuse kontrollplaan","correct":false},{"text":"Tervise ja ohutuse sertifitseerimisprotsess","correct":false}]},{"text":"Mida tuleb teha külmutatud tootega, mis on osaliselt sulanud?","options":[{"text":"Ei tohi uuesti külmutada","correct":true},{"text":"Võib uuesti külmutada kui kiiresti teha","correct":false},{"text":"Võib uuesti külmutada kui temperatuur ei ületanud 0 °C","correct":false}]},{"text":"Millal on laotöötajal kohustuslik käsi pesta?","options":[{"text":"Pärast tõstuki kasutamist, WC-käiku ja prügi viimist","correct":true},{"text":"Ainult enne söömist ja pärast WC-käiku","correct":false},{"text":"Üks kord vahetuse alguses","correct":false}]},{"text":"Mida tähendab \"kõlblik kuni\" märgistus toidul?","options":[{"text":"Kiiresti riknev toode — ei tohi müüa ega tarbida pärast tähtaega","correct":true},{"text":"Toodet võib müüa ka pärast tähtaega, kui ostjat teavitatakse","correct":false},{"text":"Tähtaeg kehtib ainult avamata pakendile","correct":false}]}]}];
+// ══════════════════════════════════════════
+
+const TR={
+  et:{
+    badge:"Testid", pickerTitle:"Vali koolitus", pickerSub:"Kliki testil mida soovid sooritada.",
+    noTests:"Teste pole veel lisatud. Admin peab exportima uue test.html faili.",
+    lWorkerName:"Sinu täisnimi", phWorkerName:"Eesnimi Perekonnanimi",
+    btnStart:"Alusta testi →", btnBack:"← Tagasi",
+    ttQLbl:"küsimust", ttPassLbl:"Läbimiseks",
+    btnPrev:"← Eelmine", btnNext:"Järgmine →", btnSubmit:"✓ Esita test",
+    confirmUnanswered:(n)=>`Sul on ${n} küsimusele vastamata. Esitad?`,
+    resPass:"Test läbitud!", resFail:"Test läbimata",
+    resSubPass:(p)=>`Suurepärane! Vastasid ${p}% küsimustest õigesti.`,
+    resSubFail:(p,t)=>`Vastasid ${p}% küsimustest õigesti. Läbimiseks oli vaja ${t}%.`,
+    scoreLbl:"tulemus", statOk:"Õiged", statWrong:"Valed", statTotal:"Kokku",
+    threshNote:(t,n,tot)=>`Läbimise künnis: ${t}% (${n} / ${tot} õiget vastust)`,
+    reviewTitle:"Vastuste ülevaade", badgeOk:"✓ Õige", badgeFail:"✗ Vale", unanswered:"Vastamata",
+    btnPrint:"🖨 Prindi PDF", btnEmail:"📧 Saada tulemused",
+    btnRetake:"↻ Tee uuesti", btnAllTests:"📋 Kõik testid",
+    pdfReport:"Tulemuste aruanne", pdfWorker:"Töötaja", pdfSooritatud:"Sooritatud",
+    emailNoAddr:"❌ E-post pole testis seadistatud.",
+    emailNoEjs:"❌ EmailJS seaded puuduvad.",
+    emailSending:"⏳ Saadan...", emailSent:(a)=>`✅ Saadetud aadressile ${a}`,
+    emailFail:"❌ Saatmine ebaõnnestus.",
+    emailBtnSending:"⏳ Saadan...", emailBtnSent:"✅ Saadetud",
+    emailPassed:"LÄBITUD ✓", emailFailed:"LÄBIMATA ✗",
+    emailCorrect:"← SINU VASTUS (ÕIGE)", emailWrong:"← SINU VASTUS (VALE)", emailMissed:"← ÕIGE VASTUS",
+    qCount:(n,t)=>`${n} küsimust · Läbimiseks ${t}%`,
+  },
+  ru:{
+    badge:"Тесты", pickerTitle:"Выберите обучение", pickerSub:"Нажмите на тест, который хотите пройти.",
+    noTests:"Тестов пока нет. Администратор должен экспортировать новый test.html.",
+    lWorkerName:"Ваше полное имя", phWorkerName:"Имя Фамилия",
+    btnStart:"Начать тест →", btnBack:"← Назад",
+    ttQLbl:"вопросов", ttPassLbl:"Для прохождения",
+    btnPrev:"← Назад", btnNext:"Далее →", btnSubmit:"✓ Отправить тест",
+    confirmUnanswered:(n)=>`${n} вопрос(а) без ответа. Отправить?`,
+    resPass:"Тест пройден!", resFail:"Тест не пройден",
+    resSubPass:(p)=>`Отлично! Вы ответили правильно на ${p}% вопросов.`,
+    resSubFail:(p,t)=>`Вы ответили правильно на ${p}% вопросов. Для прохождения нужно ${t}%.`,
+    scoreLbl:"результат", statOk:"Верных", statWrong:"Неверных", statTotal:"Всего",
+    threshNote:(t,n,tot)=>`Проходной порог: ${t}% (${n} / ${tot} правильных ответов)`,
+    reviewTitle:"Обзор ответов", badgeOk:"✓ Верно", badgeFail:"✗ Неверно", unanswered:"Без ответа",
+    btnPrint:"🖨 Печать PDF", btnEmail:"📧 Отправить результаты",
+    btnRetake:"↻ Пройти заново", btnAllTests:"📋 Все тесты",
+    pdfReport:"Отчёт о результатах", pdfWorker:"Сотрудник", pdfSooritatud:"Пройден",
+    emailNoAddr:"❌ E-mail не указан в тесте.",
+    emailNoEjs:"❌ Настройки EmailJS отсутствуют.",
+    emailSending:"⏳ Отправляю...", emailSent:(a)=>`✅ Отправлено на ${a}`,
+    emailFail:"❌ Ошибка отправки.",
+    emailBtnSending:"⏳ Отправляю...", emailBtnSent:"✅ Отправлено",
+    emailPassed:"ПРОЙДЕН ✓", emailFailed:"НЕ ПРОЙДЕН ✗",
+    emailCorrect:"← ВАШ ОТВЕТ (ВЕРНО)", emailWrong:"← ВАШ ОТВЕТ (НЕВЕРНО)", emailMissed:"← ПРАВИЛЬНЫЙ ОТВЕТ",
+    qCount:(n,t)=>`${n} вопросов · Для прохождения ${t}%`,
+  }
+};
+const LANG_META={et:{flag:"🇪🇪",label:"ET"},ru:{flag:"🇷🇺",label:"RU"}};
+// Add more languages: add block to TR and entry to LANG_META
+
+const LETTERS="ABCDE";
+let lang="et",T=TR[lang];
+let tests=[...EMBEDDED_TESTS];
+let activeTest=null,userAnswers=[],currentQ=0,submitted=false;
+
+// ── LANG ──
+function buildLangSwitcher(){
+  const sw=document.getElementById("langSwitcher");sw.innerHTML="";
+  Object.entries(LANG_META).forEach(([code,meta])=>{
+    const b=document.createElement("button");
+    b.className="lang-btn"+(code===lang?" active":"");
+    b.textContent=meta.flag+" "+meta.label;
+    b.onclick=()=>setLang(code);
+    sw.appendChild(b);
+  });
+}
+function setLang(code){
+  if(!TR[code])return;lang=code;T=TR[lang];
+  document.documentElement.lang=lang;
+  buildLangSwitcher();applyT();renderPicker();
+}
+function applyT(){
+  document.getElementById("headerBadge").textContent=T.badge;
+  document.getElementById("pickerTitle").textContent=T.pickerTitle;
+  document.getElementById("pickerSub").textContent=T.pickerSub;
+  document.getElementById("workerName").placeholder=T.phWorkerName;
+  document.getElementById("btnStart").textContent=T.btnStart;
+  document.getElementById("btnBackPicker").textContent=T.btnBack;
+  document.getElementById("ttQLbl").textContent=T.ttQLbl;
+  document.getElementById("ttPassLbl").textContent=T.ttPassLbl;
+  document.getElementById("btnPrev").textContent=T.btnPrev;
+  document.getElementById("btnNext").textContent=T.btnNext;
+  document.getElementById("btnSubmit").textContent=T.btnSubmit;
+  document.getElementById("scoreLbl").textContent=T.scoreLbl;
+  document.getElementById("statOkLbl").textContent=T.statOk;
+  document.getElementById("statWrongLbl").textContent=T.statWrong;
+  document.getElementById("statTotalLbl").textContent=T.statTotal;
+  document.getElementById("reviewTitle").textContent=T.reviewTitle;
+  document.getElementById("btnPrint").textContent=T.btnPrint;
+  document.getElementById("btnEmail").textContent=T.btnEmail;
+  document.getElementById("btnRetake").textContent=T.btnRetake;
+  document.getElementById("btnAllTests").textContent=T.btnAllTests;
+  document.getElementById("pdfReportLbl").textContent=T.pdfReport;
+  document.getElementById("pdfWorkerLbl").textContent=T.pdfWorker;
+}
+
+// ── VIEWS ──
+function showView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+// ── PICKER ──
+function renderPicker(){
+  const grid=document.getElementById("testGrid");
+  if(!tests.length){
+    grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="es-icon">📭</div><p>'+T.noTests+'</p></div>';
+    return;
+  }
+  const icons=["📋","🔥","⚡","🧪","🏗️","🛡️","💡","🎯"];
+  grid.innerHTML="";
+  tests.forEach((t,i)=>{
+    const card=document.createElement("div");
+    card.className="test-card";
+    card.onclick=()=>pickTest(t);
+    card.innerHTML=
+      '<div class="tc-icon">'+icons[i%icons.length]+'</div>'+
+      '<div class="tc-name">'+esc(t.name)+'</div>'+
+      (t.desc?'<div class="tc-desc">'+esc(t.desc)+'</div>':'')+
+      '<div class="tc-meta">'+
+        '<span class="tc-pill">'+t.questions.length+' '+T.ttQLbl+'</span>'+
+        '<span class="tc-pill">'+T.ttPassLbl+' '+t.threshold+'%</span>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+function pickTest(t){
+  activeTest=t;
+  document.getElementById("nsTestName").textContent=t.name;
+  document.getElementById("nsTestDesc").textContent=t.desc||"";
+  document.getElementById("nsTestMeta").textContent=T.qCount(t.questions.length,t.threshold);
+  document.getElementById("workerName").value="";
+  document.getElementById("btnStart").disabled=true;
+  showView("viewName");
+}
+
+// ── TEST ──
+function startTest(){
+  const name=document.getElementById("workerName").value.trim();
+  if(!name)return;
+  submitted=false;currentQ=0;
+  userAnswers=new Array(activeTest.questions.length).fill(null);
+  document.getElementById("ttName").textContent=activeTest.name;
+  document.getElementById("ttQCount").textContent=activeTest.questions.length;
+  document.getElementById("ttThresh").textContent=activeTest.threshold;
+  document.getElementById("ttWorker").textContent=name;
+  buildDots();buildCards();
+  showView("viewQuestions");showQ(0);
+}
+
+function buildDots(){
+  const el=document.getElementById("navDots");el.innerHTML="";
+  activeTest.questions.forEach((_,i)=>{
+    const d=document.createElement("div");
+    d.className="nav-dot"+(i===0?" current":"");
+    d.onclick=()=>{if(!submitted)showQ(i);};
+    el.appendChild(d);
+  });
+}
+
+function buildCards(){
+  const c=document.getElementById("questionCards");c.innerHTML="";
+  const qWord=lang==="ru"?"Вопрос":"Küsimus";
+  activeTest.questions.forEach((q,qi)=>{
+    const card=document.createElement("div");
+    card.className="question-card";card.id="qc"+qi;card.style.display="none";
+    const label=document.createElement("div");
+    label.className="q-label";
+    label.textContent=qWord+" "+(qi+1)+" / "+activeTest.questions.length;
+    const qtext=document.createElement("div");
+    qtext.className="q-text";
+    qtext.textContent=q.text;
+    const opts=document.createElement("div");
+    opts.className="answer-options";
+    q.options.forEach((o,oi)=>{
+      const btn=document.createElement("button");
+      btn.className="answer-btn";
+      btn.id="opt-"+qi+"-"+oi;
+      btn.onclick=()=>pick(qi,oi);
+      const circle=document.createElement("span");
+      circle.className="option-circle";
+      circle.textContent=LETTERS[oi]||oi+1;
+      const txt=document.createElement("span");
+      txt.textContent=o.text;
+      const icon=document.createElement("span");
+      icon.className="result-icon";
+      btn.appendChild(circle);btn.appendChild(txt);btn.appendChild(icon);
+      opts.appendChild(btn);
+    });
+    card.appendChild(label);card.appendChild(qtext);card.appendChild(opts);
+    c.appendChild(card);
+  });
+}
+
+function showQ(idx){
+  currentQ=idx;
+  document.querySelectorAll(".question-card").forEach((c,i)=>c.style.display=i===idx?"block":"none");
+  document.querySelectorAll(".nav-dot").forEach((d,i)=>{
+    d.classList.toggle("current",i===idx);
+    d.classList.toggle("answered",userAnswers[i]!==null);
+  });
+  const ans=userAnswers.filter(a=>a!==null).length;
+  document.getElementById("progressFill").style.width=(ans/activeTest.questions.length*100)+"%";
+  const isLast=idx===activeTest.questions.length-1;
+  document.getElementById("btnPrev").style.display=idx>0?"inline-flex":"none";
+  document.getElementById("btnNext").style.display=!submitted&&!isLast?"inline-flex":"none";
+  document.getElementById("btnSubmit").style.display=!submitted&&isLast?"inline-flex":"none";
+  if(submitted){document.getElementById("btnNext").style.display="none";document.getElementById("btnSubmit").style.display="none";}
+}
+
+function navQ(dir){const n=currentQ+dir;if(n>=0&&n<activeTest.questions.length)showQ(n);}
+
+function pick(qi,oi){
+  if(submitted)return;
+  userAnswers[qi]=oi;
+  activeTest.questions[qi].options.forEach((_,i)=>document.getElementById("opt-"+qi+"-"+i).classList.remove("selected"));
+  document.getElementById("opt-"+qi+"-"+oi).classList.add("selected");
+  const ans=userAnswers.filter(a=>a!==null).length;
+  document.getElementById("progressFill").style.width=(ans/activeTest.questions.length*100)+"%";
+  document.querySelectorAll(".nav-dot")[qi].classList.add("answered");
+  const isLast=qi===activeTest.questions.length-1;
+  setTimeout(()=>{
+    if(!isLast)showQ(qi+1);
+    else{document.getElementById("btnSubmit").style.display="inline-flex";document.getElementById("btnNext").style.display="none";}
+  },300);
+}
+
+function submitTest(){
+  const u=userAnswers.filter(a=>a===null).length;
+  if(u>0&&!confirm(T.confirmUnanswered(u)))return;
+  submitted=true;showResults();
+}
+
+function retake(){
+  pickTest(activeTest);
+}
+
+// ── RESULTS ──
+function showResults(){
+  let correct=0;
+  activeTest.questions.forEach((q,qi)=>{const s=userAnswers[qi];if(s!==null&&q.options[s]?.correct)correct++;});
+  const total=activeTest.questions.length,pct=Math.round(correct/total*100),passed=pct>=activeTest.threshold;
+  document.getElementById("resEmoji").textContent=passed?"🎉":"📚";
+  const h=document.getElementById("resHeading");
+  h.textContent=passed?T.resPass:T.resFail;h.className="result-heading "+(passed?"pass":"fail");
+  document.getElementById("resSub").textContent=passed?T.resSubPass(pct):T.resSubFail(pct,activeTest.threshold);
+  document.getElementById("scorePct").textContent=pct+"%";
+  document.getElementById("statOk").textContent=correct;
+  document.getElementById("statWrong").textContent=total-correct;
+  document.getElementById("statTotal").textContent=total;
+  document.getElementById("threshNote").textContent=T.threshNote(activeTest.threshold,Math.ceil(activeTest.threshold/100*total),total);
+  const ring=document.getElementById("scoreRing");
+  ring.className="score-ring "+(passed?"pass":"fail");
+  setTimeout(()=>document.getElementById("ringFill").style.strokeDashoffset=339.3-(pct/100)*339.3,100);
+  const rc=document.getElementById("reviewCards");rc.innerHTML="";
+  activeTest.questions.forEach((q,qi)=>{
+    const sel=userAnswers[qi],isOk=sel!==null&&q.options[sel]?.correct;
+    let optHtml=q.options.map((o,oi)=>{
+      let cls="answer-btn",icon="";
+      if(o.correct&&oi===sel){cls+=" correct-answer";icon="✓";}
+      else if(!o.correct&&oi===sel){cls+=" wrong-answer";icon="✗";}
+      else if(o.correct){cls+=" missed-answer";icon="→";}
+      return'<div class="'+cls+'" style="pointer-events:none;margin-bottom:6px;">'+
+        '<span class="option-circle">'+(LETTERS[oi]||oi+1)+'</span>'+
+        '<span>'+esc(o.text)+'</span><span class="result-icon">'+icon+'</span></div>';
+    }).join("");
+    if(sel===null)optHtml+='<p style="font-size:.82rem;color:var(--ink-light);font-style:italic;margin-top:6px;">'+T.unanswered+'</p>';
+    const card=document.createElement("div");
+    card.className="review-card "+(isOk?"correct-q":"wrong-q");
+    card.innerHTML='<div class="review-q-header"><span class="review-q-text">'+esc(q.text)+'</span>'+
+      '<span class="review-badge '+(isOk?"badge-ok":"badge-fail")+'">'+(isOk?T.badgeOk:T.badgeFail)+'</span></div>'+optHtml;
+    rc.appendChild(card);
+  });
+  const wn=document.getElementById("workerName")?.value?.trim()||"—";
+  document.getElementById("pdfWorkerName").textContent=wn;
+  document.getElementById("pdfTestName").textContent=activeTest.name;
+  const es=document.getElementById("emailStatus");es.style.display="none";
+  const eb=document.getElementById("btnEmail");eb.disabled=false;eb.textContent=T.btnEmail;
+  showView("viewResults");
+}
+
+// ── PDF ──
+function getDate(){
+  const n=new Date();
+  return n.toLocaleDateString(lang==="ru"?"ru-RU":"et-EE",{day:"2-digit",month:"long",year:"numeric"})+" "+n.toLocaleTimeString("et-EE",{hour:"2-digit",minute:"2-digit"});
+}
+function printPDF(){
+  const d=getDate();
+  document.getElementById("pdfDateTime").textContent=T.pdfSooritatud+": "+d;
+  document.getElementById("pdfFooterDate").textContent=d;
+  window.print();
+}
+
+// ── EMAIL + PDF ATTACHMENT ──
+
+// Load a script dynamically, returns promise
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector('script[src="'+src+'"]')){res();return;}
+    const s=document.createElement("script");
+    s.src=src;s.onload=res;s.onerror=rej;
+    document.head.appendChild(s);
+  });
+}
+
+// Build a self-contained HTML string of the results for PDF generation
+function buildPdfHtml(){
+  const wn=document.getElementById("workerName")?.value?.trim()||"—";
+  const d=getDate();
+  let correct=0;
+  activeTest.questions.forEach((q,qi)=>{
+    const s=userAnswers[qi];if(s!==null&&q.options[s]?.correct)correct++;
+  });
+  const total=activeTest.questions.length,pct=Math.round(correct/total*100),passed=pct>=activeTest.threshold;
+  const passColor=passed?"#2d6a4f":"#c84b31";
+  const passLabel=passed?(lang==="ru"?"ПРОЙДЕН ✓":"LÄBITUD ✓"):(lang==="ru"?"НЕ ПРОЙДЕН ✗":"LÄBIMATA ✗");
+  const qWord=lang==="ru"?"Вопрос":"Küsimus";
+  const correctWord=lang==="ru"?"Верно":"Õige";
+  const wrongWord=lang==="ru"?"Неверно":"Vale";
+  const unansweredWord=lang==="ru"?"Без ответа":"Vastamata";
+  const yourCorrect=lang==="ru"?"ВАШ ОТВЕТ — ВЕРНО":"SINU VASTUS — ÕIGE";
+  const yourWrong=lang==="ru"?"ВАШ ОТВЕТ — VALE":"SINU VASTUS — VALE";
+  const rightAnswer=lang==="ru"?"ПРАВИЛЬНЫЙ ОТВЕТ":"ÕIGE VASTUS";
+
+  let reviewHtml="";
+  activeTest.questions.forEach((q,qi)=>{
+    const sel=userAnswers[qi],isOk=sel!==null&&q.options[sel]?.correct;
+    const borderColor=isOk?"#2d6a4f":"#c84b31";
+    let optsHtml="";
+    q.options.forEach((o,oi)=>{
+      let bg="transparent",color="#333",note="",fw="normal";
+      if(o.correct&&oi===sel){bg="#d8f3dc";color="#2d6a4f";note=" ← "+yourCorrect;fw="600";}
+      else if(!o.correct&&oi===sel){bg="#fde8e4";color="#c84b31";note=" ← "+yourWrong;fw="600";}
+      else if(o.correct){bg="#f0faf3";color="#2d6a4f";note=" ← "+rightAnswer;fw="600";}
+      optsHtml+=`<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 8px;margin:3px 0;border-radius:5px;background:${bg};color:${color};font-weight:${fw};font-size:12px;">
+        <span style="flex-shrink:0;width:20px;height:20px;border-radius:50%;background:${color};color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700">${"ABCDE"[oi]||oi+1}</span>
+        <span>${o.text}${note}</span>
+      </div>`;
+    });
+    if(sel===null) optsHtml+=`<p style="font-size:11px;color:#888;font-style:italic;margin:4px 0 0">${unansweredWord}</p>`;
+    reviewHtml+=`<div style="border:1px solid #ddd;border-left:4px solid ${borderColor};border-radius:8px;padding:12px;margin-bottom:10px;page-break-inside:avoid;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px;">
+        <span style="font-weight:600;font-size:13px;flex:1">${qi+1}. ${q.text}</span>
+        <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;white-space:nowrap;background:${isOk?"#d8f3dc":"#fde8e4"};color:${borderColor}">${isOk?("✓ "+correctWord):("✗ "+wrongWord)}</span>
+      </div>
+      ${optsHtml}
+    </div>`;
+  });
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <style>
+    body{font-family:Arial,sans-serif;color:#1a1a2e;margin:0;padding:20px;font-size:13px;}
+    .header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1a1a2e;padding-bottom:10px;margin-bottom:14px;}
+    .logo{font-size:18px;font-weight:700;color:#1a1a2e;}
+    .hero{text-align:center;padding:20px;border:1px solid #ddd;border-radius:10px;margin-bottom:16px;}
+    .score{font-size:42px;font-weight:700;color:${passColor};}
+    .status{font-size:20px;font-weight:700;color:${passColor};margin:4px 0;}
+    .stats{display:flex;justify-content:center;gap:30px;margin-top:12px;}
+    .stat{text-align:center;}
+    .stat-val{font-size:20px;font-weight:700;}
+    .stat-lbl{font-size:11px;color:#666;}
+    .note{font-size:11px;color:#666;margin-top:10px;background:#f5f0e8;padding:6px 12px;border-radius:6px;display:inline-block;}
+    .review-title{font-size:15px;font-weight:700;margin:14px 0 8px;}
+    .footer{text-align:center;font-size:10px;color:#999;border-top:1px solid #eee;padding-top:8px;margin-top:20px;}
+  </style></head><body>
+  <div class="header">
+    <div>
+      <div style="font-size:16px;font-weight:700">${activeTest.name}</div>
+      <div style="font-size:11px;color:#666">${lang==="ru"?"Сотрудник":"Töötaja"}: <strong>${wn}</strong> &nbsp;|&nbsp; ${d}</div>
+    </div>
+    <div style="text-align:right"><div class="logo">📋 KoolitusTest</div><div style="font-size:10px;color:#666">${lang==="ru"?"Отчёт о результатах":"Tulemuste aruanne"}</div></div>
+  </div>
+  <div class="hero">
+    <div class="score">${pct}%</div>
+    <div class="status">${passLabel}</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val" style="color:#2d6a4f">${correct}</div><div class="stat-lbl">${lang==="ru"?"Верных":"Õiged"}</div></div>
+      <div class="stat"><div class="stat-val" style="color:#c84b31">${total-correct}</div><div class="stat-lbl">${lang==="ru"?"Неверных":"Valed"}</div></div>
+      <div class="stat"><div class="stat-val">${total}</div><div class="stat-lbl">${lang==="ru"?"Всего":"Kokku"}</div></div>
+    </div>
+    <div class="note">${lang==="ru"?`Проходной порог: ${activeTest.threshold}% (${Math.ceil(activeTest.threshold/100*total)} / ${total})`:
+      `Läbimise künnis: ${activeTest.threshold}% (${Math.ceil(activeTest.threshold/100*total)} / ${total} õiget)`}</div>
+  </div>
+  <div class="review-title">${lang==="ru"?"Обзор ответов":"Vastuste ülevaade"}</div>
+  ${reviewHtml}
+  <div class="footer">KoolitusTest &nbsp;|&nbsp; ${d}</div>
+  </body></html>`;
+}
+
+// Generate PDF blob using html2pdf
+async function generatePdfBlob(){
+  await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js");
+  const htmlStr=buildPdfHtml();
+  const container=document.createElement("div");
+  container.style.cssText="position:fixed;left:-9999px;top:0;width:210mm;background:#fff;";
+  container.innerHTML=htmlStr;
+  document.body.appendChild(container);
+  const opt={
+    margin:[10,10,10,10],
+    filename:"tulemus.pdf",
+    image:{type:"jpeg",quality:0.92},
+    html2canvas:{scale:2,useCORS:true,logging:false},
+    jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}
+  };
+  try{
+    const pdf=await html2pdf().set(opt).from(container).outputPdf("arraybuffer");
+    document.body.removeChild(container);
+    // Convert arraybuffer to base64
+    const bytes=new Uint8Array(pdf);
+    let binary="";
+    for(let i=0;i<bytes.byteLength;i++) binary+=String.fromCharCode(bytes[i]);
+    return btoa(binary);
+  } catch(e){
+    if(document.body.contains(container)) document.body.removeChild(container);
+    throw e;
+  }
+}
+
+async function sendEmail(){
+  // ── Kleebi siia oma Apps Script Web App URL ──
+  const GAS_URL = "https://script.google.com/macros/s/AKfycby6HengoLPOjwTbc_PqotTYTc0PbRw4Vv9G1SB37X1a7u9Iupff5517GRG9kKQ2cgwUTg/exec";
+  // ─────────────────────────────────────────────
+
+  const toEmail = activeTest.adminEmail || "madis@laansalu.ee";
+
+  if(GAS_URL.startsWith("ASENDA")){
+    setEmailStatus("error","❌ Apps Script URL on seadistamata. Lisa GAS_URL test.html faili.");
+    return;
+  }
+
+  const btn=document.getElementById("btnEmail");
+  btn.disabled=true;
+
+  // Build review text
+  let correct=0,review="";
+  activeTest.questions.forEach((q,qi)=>{
+    const sel=userAnswers[qi],isOk=sel!==null&&q.options[sel]?.correct;
+    if(isOk)correct++;
+    review+=(isOk?"✓":"✗")+" "+(qi+1)+": "+q.text+"\n";
+    q.options.forEach((o,oi)=>{
+      let mark="";
+      if(o.correct&&oi===sel)mark=" "+T.emailCorrect;
+      else if(!o.correct&&oi===sel)mark=" "+T.emailWrong;
+      else if(o.correct)mark=" "+T.emailMissed;
+      review+="   "+(LETTERS[oi])+". "+o.text+mark+"\n";
+    });review+="\n";
+  });
+  const total=activeTest.questions.length,pct=Math.round(correct/total*100),passed=pct>=activeTest.threshold;
+  const wn=document.getElementById("workerName")?.value?.trim()||"—";
+
+  try{
+    setEmailStatus("info",lang==="ru"?"⏳ Генерирую PDF...":"⏳ Genereerin PDF...");
+    const pdfBase64=await generatePdfBlob();
+
+    setEmailStatus("info",lang==="ru"?"⏳ Отправляю письмо...":"⏳ Saadan kirja...");
+
+    const payload={
+      to_email:    toEmail,
+      worker_name: wn,
+      test_name:   activeTest.name,
+      result_pct:  pct+"%",
+      result_status: passed?T.emailPassed:T.emailFailed,
+      correct_count: correct,
+      total_count:   total,
+      threshold:     activeTest.threshold+"%",
+      date_time:     getDate(),
+      review_text:   review,
+      pdf_base64:    pdfBase64,
+      pdf_filename:  wn.replace(/\s+/g,"_")+"_"+activeTest.name.replace(/\s+/g,"_")+".pdf"
+    };
+
+    // no-cors: brauseripoolne CORS preflight puudub — kiri saadetakse serveris edukalt
+    await fetch(GAS_URL,{method:"POST",mode:"no-cors",body:JSON.stringify(payload)});
+
+    setEmailStatus("success",T.emailSent(toEmail));
+    btn.textContent=T.emailBtnSent;
+  }catch(e){
+    console.error(e);
+    setEmailStatus("error",T.emailFail);
+    btn.disabled=false;btn.textContent=T.btnEmail;
+  }
+}
+
+function setEmailStatus(type,msg){
+  const el=document.getElementById("emailStatus");
+  const bg={success:"#d8f3dc",error:"#fde8e4",info:"#ede7d9"};
+  const cl={success:"#2d6a4f",error:"#c84b31",info:"#3a3a5c"};
+  el.style.cssText="display:block;padding:12px 16px;border-radius:8px;font-size:.88rem;margin-bottom:1rem;background:"+bg[type]+";color:"+cl[type]+";border:1px solid "+cl[type]+"44";
+  el.textContent=msg;
+}
+
+function esc(s){return(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
+
+// ── INIT ──
+buildLangSwitcher();
+applyT();
+renderPicker();
+</script>
+</body>
+</html>
