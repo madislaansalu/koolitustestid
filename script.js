@@ -77,8 +77,88 @@ let lang="et", T=TR[lang];
 let tests=[], editingId=null;
 
 // ── KATALOOG (localStorage) ──
+const SEED_TESTS = [
+  {
+    id: 1000000001,
+    name: "Lao ja transpordi toiduhügieen",
+    desc: "Kontrolli oma teadmisi lao ja transpordi toiduhügieeni nõuete kohta.",
+    threshold: 70,
+    questions: [
+      { text: "Mis temperatuuril tuleb jahutatud liha- ja kalatooted laos hoida?",
+        options: [
+          { text: "+2…+6 °C", correct: true },
+          { text: "+6…+10 °C", correct: false },
+          { text: "0…+2 °C", correct: false }
+        ]},
+      { text: "Mis temperatuuril tuleb külmutatud tooteid hoida?",
+        options: [
+          { text: "≤ −18 °C", correct: true },
+          { text: "≤ −10 °C", correct: false },
+          { text: "≤ −5 °C", correct: false }
+        ]},
+      { text: "Milline temperatuurivahemik on bakteritele kõige soodsam kasvuks?",
+        options: [
+          { text: "+6…+63 °C", correct: true },
+          { text: "0…+6 °C", correct: false },
+          { text: "+63…+100 °C", correct: false }
+        ]},
+      { text: "Mida tähendab FIFO põhimõte laos?",
+        options: [
+          { text: "Esimesena sisse, esimesena välja", correct: true },
+          { text: "Viimane sisse, esimene välja", correct: false },
+          { text: "Kõige odavam toode läheb esimesena välja", correct: false }
+        ]},
+      { text: "Millisele riiulile tuleb toortoit külmlaos paigutada?",
+        options: [
+          { text: "Alumistele riiulitele", correct: true },
+          { text: "Ülemistele riiulitele", correct: false },
+          { text: "Keskmistele riiulitele", correct: false }
+        ]},
+      { text: "Mis temperatuuril tuleb kodulinnuliha hoida?",
+        options: [
+          { text: "≤ +4 °C", correct: true },
+          { text: "≤ +6 °C", correct: false },
+          { text: "≤ +8 °C", correct: false }
+        ]},
+      { text: "Mida tähendab HACCP?",
+        options: [
+          { text: "Ohtude analüüs ja kriitiliste kontrollpunktide süsteem", correct: true },
+          { text: "Hügieeni ja puhastuse kontrollplaan", correct: false },
+          { text: "Tervise ja ohutuse sertifitseerimisprotsess", correct: false }
+        ]},
+      { text: "Mida tuleb teha külmutatud tootega, mis on osaliselt sulanud?",
+        options: [
+          { text: "Ei tohi uuesti külmutada", correct: true },
+          { text: "Võib uuesti külmutada kui kiiresti teha", correct: false },
+          { text: "Võib uuesti külmutada kui temperatuur ei ületanud 0 °C", correct: false }
+        ]},
+      { text: "Millal on laotöötajal kohustuslik käsi pesta?",
+        options: [
+          { text: "Pärast tõstuki kasutamist, WC-käiku ja prügi viimist", correct: true },
+          { text: "Ainult enne söömist ja pärast WC-käiku", correct: false },
+          { text: "Üks kord vahetuse alguses", correct: false }
+        ]},
+      { text: "Mida tähendab \"kõlblik kuni\" märgistus toidul?",
+        options: [
+          { text: "Kiiresti riknev toode — ei tohi müüa ega tarbida pärast tähtaega", correct: true },
+          { text: "Toodet võib müüa ka pärast tähtaega, kui ostjat teavitatakse", correct: false },
+          { text: "Tähtaeg kehtib ainult avamata pakendile", correct: false }
+        ]}
+    ]
+  }
+];
+
 function saveKataloog(){ try{ localStorage.setItem("koolitustestid_kataloog", JSON.stringify(tests)); } catch(e){} }
-function loadKataloog(){ try{ const d=localStorage.getItem("koolitustestid_kataloog"); if(d) tests=JSON.parse(d)||[]; } catch(e){} }
+function loadKataloog(){
+  try{
+    const d=localStorage.getItem("koolitustestid_kataloog");
+    if(d) tests=JSON.parse(d)||[];
+  } catch(e){}
+  // Lisa seed testid kui neid veel kataloogis pole
+  SEED_TESTS.forEach(seed=>{
+    if(!tests.find(x=>x.id===seed.id)) tests.push(seed);
+  });
+}
 
 // ── LANG ──
 function buildLangSwitcher(){
