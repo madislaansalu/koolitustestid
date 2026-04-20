@@ -377,6 +377,53 @@ async function pushToGithub(id){
   } catch(e){toast("❌ Ühenduse viga","error");}
 }
 
+// ── GITHUB KATALOOG ──
+const GH_EXCLUDE = new Set(["admin.html","index.html","admin (6).html","toiduhygieen_test.html","toiduhygieen_test (1).html","toiduhygieen_ru (1).html","Toituhügeenikoolitus2026-04-13.html"]);
+
+async function loadGhCatalog(){
+  const el=document.getElementById("ghCatalogList");
+  el.innerHTML='<div class="empty-state" style="font-size:.85rem">Laen...</div>';
+  try{
+    const res=await fetch(`https://api.github.com/repos/${GH_REPO}/contents/?ref=${GH_BRANCH}`);
+    if(!res.ok){el.innerHTML='<div class="empty-state">❌ Viga: '+res.status+'</div>';return;}
+    const files=await res.json();
+    const htmlFiles=files.filter(f=>f.name.endsWith(".html")&&!GH_EXCLUDE.has(f.name));
+    if(!htmlFiles.length){el.innerHTML='<div class="empty-state">Kataloogis pole veel teste.</div>';return;}
+    el.innerHTML="";
+    htmlFiles.forEach(f=>{
+      const row=document.createElement("div"); row.className="test-row";
+      const displayName=f.name.replace(/-/g," ").replace(/\.html$/,"");
+      const url=`https://madislaansalu.github.io/koolitustestid/${f.name}`;
+      row.innerHTML=
+        '<div class="test-row-info">'+
+          '<div class="test-row-name">'+esc(displayName)+'</div>'+
+          '<div class="test-row-meta">'+f.name+'</div>'+
+        '</div>'+
+        '<div class="test-row-actions">'+
+          '<a class="btn btn-outline btn-sm" href="'+url+'" target="_blank">🔗 Ava</a>'+
+          '<button class="btn btn-primary btn-sm" onclick="importFromGh(\''+encodeURIComponent(f.download_url)+'\',\''+esc(f.name)+'\')">⬇ Laadi kataloogi</button>'+
+        '</div>';
+      el.appendChild(row);
+    });
+  } catch(e){el.innerHTML='<div class="empty-state">❌ Ühenduse viga</div>';}
+}
+
+async function importFromGh(encodedUrl, filename){
+  try{
+    const res=await fetch(decodeURIComponent(encodedUrl));
+    if(!res.ok){toast("❌ Viga faili laadimisel","error");return;}
+    const html=await res.text();
+    const m=html.match(/const EMBEDDED_TESTS=(\[[\s\S]*?\]);/);
+    if(!m) throw new Error();
+    const imported=JSON.parse(m[1]);
+    if(!Array.isArray(imported)) throw new Error();
+    let added=0;
+    imported.forEach(t=>{if(!tests.find(x=>x.id===t.id)){tests.push(t);added++;}});
+    saveKataloog(); renderTestList();
+    toast(added?"✅ "+added+" testi laaditud kataloogi":"ℹ️ Test juba kataloogis","success");
+  } catch(e){toast("❌ Faili lugemine ebaõnnestus","error");}
+}
+
 // ── EXPORT test.html ──
 function exportTestFile(){
   if(!tests.length){alert(T.alertNoQ);return;}
@@ -476,3 +523,4 @@ buildLangSwitcher();
 applyT();
 renderTestList();
 addQuestion();
+loadGhCatalog();
