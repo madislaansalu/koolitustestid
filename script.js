@@ -23,7 +23,7 @@ const TR = {
     qLabel:"Küsimus", qPh:"Sisesta küsimus...",
     ansLabel:"Vastused", ansHint:"(✓ = õige)", ansPh:"Vastuse tekst...",
     btnAddOpt:"+ Lisa valik", btnDelQ:"Kustuta", btnDelOpt:"Eemalda",
-    btnEdit:"✏️ Muuda", btnDelete:"🗑 Kustuta",
+    btnEdit:"✏️ Muuda", btnDelete:"🗑 Kustuta", btnGh:"📤 Kataloogi",
     toastSaved:(n)=>`✅ Test "${n}" salvestatud!`,
     toastUpdated:(n)=>`✅ Test "${n}" uuendatud!`,
     toastDeleted:(n)=>`🗑 Test "${n}" kustutatud.`,
@@ -50,7 +50,7 @@ const TR = {
     qLabel:"Вопрос", qPh:"Введите вопрос...",
     ansLabel:"Ответы", ansHint:"(✓ = правильный)", ansPh:"Текст ответа...",
     btnAddOpt:"+ Добавить вариант", btnDelQ:"Удалить", btnDelOpt:"Убрать",
-    btnEdit:"✏️ Изменить", btnDelete:"🗑 Удалить",
+    btnEdit:"✏️ Изменить", btnDelete:"🗑 Удалить", btnGh:"📤 В каталог",
     toastSaved:(n)=>`✅ Тест "${n}" сохранён!`,
     toastUpdated:(n)=>`✅ Тест "${n}" обновлён!`,
     toastDeleted:(n)=>`🗑 Тест "${n}" удалён.`,
@@ -318,10 +318,61 @@ function renderTestList(){
       '</div>'+
       '<div class="test-row-actions">'+
         '<button class="btn btn-outline btn-sm" onclick="editTest('+t.id+')">'+T.btnEdit+'</button>'+
+        '<button class="btn btn-primary btn-sm" onclick="pushToGithub('+t.id+')">'+T.btnGh+'</button>'+
         '<button class="btn btn-danger btn-sm" onclick="deleteTest('+t.id+')">'+T.btnDelete+'</button>'+
       '</div>';
     el.appendChild(row);
   });
+}
+
+// ── GITHUB PUSH ──
+const GH_REPO = "madislaansalu/koolitustestid";
+const GH_BRANCH = "main";
+
+function ghFilename(name){
+  return name.toLowerCase()
+    .replace(/ä/g,"a").replace(/ö/g,"o").replace(/ü/g,"u").replace(/õ/g,"o")
+    .replace(/[^a-z0-9\s-]/g,"").trim().replace(/\s+/g,"-") + ".html";
+}
+function getGhToken(){
+  let t=localStorage.getItem("gh_token");
+  if(!t){
+    t=prompt("GitHub Personal Access Token (vajab 'repo' õigust):\n(salvestatakse brauserisse)");
+    if(t) localStorage.setItem("gh_token",t.trim());
+  }
+  return t?t.trim():null;
+}
+async function pushToGithub(id){
+  const t=tests.find(x=>x.id===id); if(!t)return;
+  const token=getGhToken(); if(!token)return;
+  const filename=ghFilename(t.name);
+  const html=getTestHtml();
+  const placeholder="/*%%TESTS_DATA%%*/\nconst EMBEDDED_TESTS=[];";
+  const replacement="/*%%TESTS_DATA%%*/\nconst EMBEDDED_TESTS="+JSON.stringify([t])+";";
+  const out=html.includes("/*%%TESTS_DATA%%*/")
+    ?html.replace(placeholder,replacement)
+    :html.replace("const EMBEDDED_TESTS=[];","const EMBEDDED_TESTS="+JSON.stringify([t])+";");
+  const apiUrl=`https://api.github.com/repos/${GH_REPO}/contents/${filename}`;
+  const headers={"Authorization":"token "+token,"Content-Type":"application/json"};
+  let sha=null;
+  try{
+    const check=await fetch(apiUrl,{headers});
+    if(check.ok){
+      sha=(await check.json()).sha;
+      if(!confirm(`Fail "${filename}" on juba kataloogis. Kirjutan üle?`))return;
+    } else if(check.status!==404){
+      if(check.status===401){localStorage.removeItem("gh_token"); toast("❌ Vale token — sisesta uuesti","error");}
+      else toast("❌ GitHub viga: "+check.status,"error");
+      return;
+    }
+  } catch(e){toast("❌ Ühenduse viga","error");return;}
+  const content=btoa(unescape(encodeURIComponent(out)));
+  const body={message:"Lisa test: "+t.name,content,branch:GH_BRANCH,...(sha?{sha}:{})};
+  try{
+    const res=await fetch(apiUrl,{method:"PUT",headers,body:JSON.stringify(body)});
+    if(res.ok) toast("✅ "+filename+" salvestatud GitHubi!","success");
+    else{const err=await res.json(); toast("❌ "+(err.message||res.status),"error");}
+  } catch(e){toast("❌ Ühenduse viga","error");}
 }
 
 // ── EXPORT test.html ──
