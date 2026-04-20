@@ -47,27 +47,9 @@
     </div>
   </div>
 
-  <!-- CARD 2: Admin settings / EmailJS -->
+  <!-- CARD 2: Questions -->
   <div class="card">
     <div class="card-title"><span class="num">2</span><span id="c2title"></span></div>
-    <label id="lEmail"></label><input type="email" id="adminEmail" value="madis@laansalu.ee">
-    <div style="margin-top:10px">
-      <button class="btn btn-outline btn-sm" id="btnEjsToggle" onclick="toggleEjs()"></button>
-    </div>
-    <div id="ejsBox" style="display:none;margin-top:12px;padding:14px;background:var(--paper-dark);border-radius:10px;font-size:.85rem;">
-      <p style="color:var(--ink-light);margin-bottom:10px" id="ejsIntro"></p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <input type="text" id="ejsService"  placeholder="Service ID"  value="service_0a58c6w"  style="flex:1;min-width:130px;font-size:.82rem;padding:8px 10px">
-        <input type="text" id="ejsTemplate" placeholder="Template ID" value="template_sxa1o24" style="flex:1;min-width:130px;font-size:.82rem;padding:8px 10px">
-        <input type="text" id="ejsKey"      placeholder="Public Key"  value="5imaGKI-O4aZdrhU3"  style="flex:1;min-width:130px;font-size:.82rem;padding:8px 10px">
-      </div>
-      <p style="color:var(--ink-light);margin-top:10px;font-size:.79rem" id="ejsVars"></p>
-    </div>
-  </div>
-
-  <!-- CARD 3: Questions -->
-  <div class="card">
-    <div class="card-title"><span class="num">3</span><span id="c3title"></span></div>
     <div class="questions-list" id="questionsList"></div>
     <div class="actions-row">
       <button class="btn btn-outline" id="btnAddQ" onclick="addQuestion()"></button>

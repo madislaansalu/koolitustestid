@@ -16,11 +16,7 @@ const TR = {
     c1:"Testi andmed", lName:"Testi nimi", phName:"nt. Tuleohutuse koolitus 2025",
     lDesc:"Kirjeldus", phDesc:"Lühike selgitus töötajatele...",
     lThresh:"Läbimise künnis", threshLabel:"õigeid vastuseid nõutakse",
-    c2:"E-post ja EmailJS", lEmail:"Sinu e-mail (kuhu tulemused saadetakse)", phEmail:"koolitaja@ettevote.ee",
-    ejsOpen:"⚙️ EmailJS seaded", ejsClose:"✕ Sulge",
-    ejsIntro:"Tasuta e-maili saatmiseks loo konto emailjs.com ja täida:",
-    ejsVars:"Malli muutujad: {{worker_name}} {{test_name}} {{result_pct}} {{result_status}} {{correct_count}} {{total_count}} {{threshold}} {{date_time}} {{review_text}}",
-    c3:"Küsimused", btnAddQ:"+ Lisa küsimus",
+    c2:"Küsimused", btnAddQ:"+ Lisa küsimus",
     btnSave:"💾 Salvesta testi nimekirja", btnDemo:"📄 Näidistest", btnClear:"✕ Tühjenda vorm",
     listTitle:"Salvestatud testid",
     btnExportAll:"⬇ Ekspordi test.html", btnImport:"⬆ Impordi test.html",
@@ -47,11 +43,7 @@ const TR = {
     c1:"Данные теста", lName:"Название теста", phName:"напр. Пожарная безопасность 2025",
     lDesc:"Описание", phDesc:"Краткое пояснение для сотрудников...",
     lThresh:"Проходной порог", threshLabel:"правильных ответов требуется",
-    c2:"E-mail и EmailJS", lEmail:"Ваш e-mail (куда отправлять результаты)", phEmail:"trainer@company.com",
-    ejsOpen:"⚙️ Настройки EmailJS", ejsClose:"✕ Закрыть",
-    ejsIntro:"Для отправки создайте аккаунт на emailjs.com и заполните:",
-    ejsVars:"Переменные: {{worker_name}} {{test_name}} {{result_pct}} {{result_status}} {{correct_count}} {{total_count}} {{threshold}} {{date_time}} {{review_text}}",
-    c3:"Вопросы", btnAddQ:"+ Добавить вопрос",
+    c2:"Вопросы", btnAddQ:"+ Добавить вопрос",
     btnSave:"💾 Сохранить тест", btnDemo:"📄 Пример", btnClear:"✕ Очистить форму",
     listTitle:"Сохранённые тесты",
     btnExportAll:"⬇ Экспорт test.html", btnImport:"⬆ Импорт test.html",
@@ -84,6 +76,10 @@ const LANG_META = {
 let lang="et", T=TR[lang];
 let tests=[], editingId=null;
 
+// ── KATALOOG (localStorage) ──
+function saveKataloog(){ try{ localStorage.setItem("koolitustestid_kataloog", JSON.stringify(tests)); } catch(e){} }
+function loadKataloog(){ try{ const d=localStorage.getItem("koolitustestid_kataloog"); if(d) tests=JSON.parse(d)||[]; } catch(e){} }
+
 // ── LANG ──
 function buildLangSwitcher(){
   const sw=document.getElementById("langSwitcher"); sw.innerHTML="";
@@ -108,13 +104,6 @@ function applyT(){
   document.getElementById("lThresh").textContent=T.lThresh;
   document.getElementById("threshLabel").textContent=T.threshLabel;
   document.getElementById("c2title").textContent=T.c2;
-  document.getElementById("lEmail").textContent=T.lEmail;
-  document.getElementById("adminEmail").placeholder=T.phEmail;
-  document.getElementById("btnEjsToggle").textContent=T.ejsOpen;
-  document.getElementById("ejsBox").style.display="none";
-  document.getElementById("ejsIntro").textContent=T.ejsIntro;
-  document.getElementById("ejsVars").textContent=T.ejsVars;
-  document.getElementById("c3title").textContent=T.c3;
   document.getElementById("btnAddQ").textContent=T.btnAddQ;
   document.getElementById("btnSave").textContent=T.btnSave;
   document.getElementById("btnDemo").textContent=T.btnDemo;
@@ -126,14 +115,6 @@ function applyT(){
 
 // ── THRESHOLD ──
 function updateThreshold(){ document.getElementById("threshDisplay").textContent=(parseInt(document.getElementById("threshold").value)||0)+"%"; }
-
-// ── EMAIL SETUP ──
-function toggleEjs(){
-  const b=document.getElementById("ejsBox"), btn=document.getElementById("btnEjsToggle");
-  const show=b.style.display==="none";
-  b.style.display=show?"block":"none";
-  btn.textContent=show?T.ejsClose:T.ejsOpen;
-}
 
 // ── QUESTION EDITOR ──
 function addQuestion(data){
@@ -176,10 +157,6 @@ function clearForm(){
   document.getElementById("testName").value="";
   document.getElementById("testDesc").value="";
   document.getElementById("threshold").value=70; updateThreshold();
-  document.getElementById("adminEmail").value="";
-  document.getElementById("ejsService").value="";
-  document.getElementById("ejsTemplate").value="";
-  document.getElementById("ejsKey").value="";
   document.getElementById("questionsList").innerHTML="";
   document.getElementById("btnSave").textContent=T.btnSave;
   addQuestion();
@@ -189,10 +166,6 @@ function fillForm(t){
   document.getElementById("testName").value=t.name||"";
   document.getElementById("testDesc").value=t.desc||"";
   document.getElementById("threshold").value=t.threshold||70; updateThreshold();
-  document.getElementById("adminEmail").value=t.adminEmail||"";
-  document.getElementById("ejsService").value=t.ejsServiceId||"";
-  document.getElementById("ejsTemplate").value=t.ejsTemplateId||"";
-  document.getElementById("ejsKey").value=t.ejsPublicKey||"";
   document.getElementById("questionsList").innerHTML="";
   (t.questions||[]).forEach(q=>addQuestion(q));
   if(editingId) document.getElementById("btnSave").textContent=T.toastUpdated("").replace("✅ ","💾 ").replace(/ ".*"!$/,"");
@@ -214,10 +187,6 @@ function collectForm(){
     name:document.getElementById("testName").value.trim(),
     desc:document.getElementById("testDesc").value.trim(),
     threshold:parseInt(document.getElementById("threshold").value)||70,
-    adminEmail:document.getElementById("adminEmail").value.trim(),
-    ejsServiceId:document.getElementById("ejsService").value.trim(),
-    ejsTemplateId:document.getElementById("ejsTemplate").value.trim(),
-    ejsPublicKey:document.getElementById("ejsKey").value.trim(),
     questions
   };
 }
@@ -239,7 +208,7 @@ function saveTest(){
   } else {
     t.id=Date.now(); tests.push(t); toast(T.toastSaved(t.name),"success");
   }
-  renderTestList(); clearForm();
+  saveKataloog(); renderTestList(); clearForm();
 }
 function editTest(id){
   const t=tests.find(x=>x.id===id); if(!t)return;
@@ -251,7 +220,7 @@ function deleteTest(id){
   if(!confirm(T.confirmDelete(t.name)))return;
   tests=tests.filter(x=>x.id!==id);
   toast(T.toastDeleted(t.name));
-  renderTestList();
+  saveKataloog(); renderTestList();
   if(editingId===id) clearForm();
 }
 
@@ -265,7 +234,7 @@ function renderTestList(){
     row.innerHTML=
       '<div class="test-row-info">'+
         '<div class="test-row-name">'+esc(t.name)+'</div>'+
-        '<div class="test-row-meta">'+T.metaQ(t.questions.length,t.threshold)+(t.adminEmail?' · '+esc(t.adminEmail):'')+'</div>'+
+        '<div class="test-row-meta">'+T.metaQ(t.questions.length,t.threshold)+'</div>'+
       '</div>'+
       '<div class="test-row-actions">'+
         '<button class="btn btn-outline btn-sm" onclick="editTest('+t.id+')">'+T.btnEdit+'</button>'+
@@ -308,7 +277,7 @@ function importTestFile(input){
       imported.forEach(t=>{
         if(!tests.find(x=>x.id===t.id)){tests.push(t);added++;}
       });
-      renderTestList();
+      saveKataloog(); renderTestList();
       toast(T.toastImported(added),"success");
     } catch(e){ toast(T.toastBadFile,"error"); }
   };
@@ -320,7 +289,6 @@ function loadDemo(){
   clearForm();
   fillForm({
     id:null, name:T.demoName, desc:T.demoDesc, threshold:70,
-    adminEmail:"", ejsServiceId:"", ejsTemplateId:"", ejsPublicKey:"",
     questions:[
       {text:lang==="ru"?"Что делать при обнаружении пожара?":"Mida tuleb teha tulekahju avastamisel?",
        options:[
@@ -370,6 +338,7 @@ if(sessionStorage.getItem("adminAuth")==="1"){
 }
 
 // ── INIT ──
+loadKataloog();
 buildLangSwitcher();
 applyT();
 renderTestList();
