@@ -353,7 +353,7 @@ function esc(s){
 }
 
 // ── LOGIN ──
-const ADMIN_PASSWORD = "admin";
+const ADMIN_PASSWORD = "PZQh?NZhwB2hOuf";
 function doLogin(){
   const pw = document.getElementById("loginPassword").value;
   if(pw === ADMIN_PASSWORD){
