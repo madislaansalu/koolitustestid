@@ -360,9 +360,11 @@ async function pushToGithub(id){
     if(check.ok){
       sha=(await check.json()).sha;
       if(!confirm(`Fail "${filename}" on juba kataloogis. Kirjutan üle?`))return;
+    } else if(check.status===401){
+      localStorage.removeItem("gh_token");
+      return pushToGithub(id);
     } else if(check.status!==404){
-      if(check.status===401){localStorage.removeItem("gh_token"); toast("❌ Vale token — sisesta uuesti","error");}
-      else toast("❌ GitHub viga: "+check.status,"error");
+      toast("❌ GitHub viga: "+check.status,"error");
       return;
     }
   } catch(e){toast("❌ Ühenduse viga","error");return;}
